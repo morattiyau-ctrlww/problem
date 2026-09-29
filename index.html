@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Agent 是來解決你的問題的</title>
+<meta name="description" content="AI Agent 唔係教你用工具，係幫你解決問題。你只需要講清楚問題。">
+<style>
+:root{
+  --bg:#0b0d13; --bg2:#12151f; --card:#161a26; --card2:#1c2130;
+  --border:#262b3a; --text:#e8eaf0; --muted:#9aa3b5;
+  --brand:#5b8cff; --brand2:#8b5cf6; --ok:#34d399; --bad:#f87171;
+  --radius:16px; --maxw:960px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--text); line-height:1.75;
+  font-family:"PingFang HK","PingFang TC","Hiragino Sans TC",
+    "Microsoft JhengHei",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+.glow{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden}
+.blob{position:absolute; width:46vmax; height:46vmax; border-radius:50%;
+  filter:blur(90px); opacity:.25}
+.b1{top:-14vmax; left:-10vmax; background:#3b82f6; animation:float1 22s ease-in-out infinite}
+.b2{bottom:-18vmax; right:-12vmax; background:#8b5cf6; animation:float2 26s ease-in-out infinite}
+.b3{top:38%; left:45%; background:#0ea5e9; opacity:.14; animation:float1 30s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(6vmax,4vmax)}}
+@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-7vmax,-5vmax)}}
+.wrap{position:relative; z-index:1; max-width:var(--maxw); margin:0 auto; padding:0 20px}
+
+.hero{padding:88px 0 44px; text-align:center}
+.badge{display:inline-flex; align-items:center; gap:8px; font-size:12px;
+  letter-spacing:.2em; text-transform:uppercase; color:#a5b8ff;
+  border:1px solid rgba(91,140,255,.35); background:rgba(91,140,255,.09);
+  padding:6px 14px; border-radius:999px}
+h1{font-size:clamp(30px,6vw,58px); line-height:1.22; margin:22px 0 14px;
+  letter-spacing:-.02em; font-weight:800}
+.grad{background:linear-gradient(100deg,#7dd3fc,#a78bfa 48%,#f0abfc);
+  -webkit-background-clip:text; background-clip:text; color:transparent}
+.sub{font-size:clamp(15px,2.4vw,19px); color:var(--muted);
+  max-width:660px; margin:0 auto}
+.pills{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:28px}
+.pill{border:1px solid var(--border); background:var(--card);
+  border-radius:999px; padding:8px 16px; font-size:14px; color:var(--muted)}
+.pill b{color:var(--text)}
+
+section{padding:52px 0}
+.kicker{color:var(--brand); font-size:12px; letter-spacing:.18em;
+  text-transform:uppercase; margin:0 0 8px; font-weight:700}
+h2{font-size:clamp(22px,3.6vw,32px); margin:0 0 10px; font-weight:800;
+  letter-spacing:-.01em}
+.lead{color:var(--muted); margin:0 0 24px; max-width:720px}
+
+.cmp{display:grid; grid-template-columns:1fr 1fr;
+  border:1px solid var(--border); border-radius:var(--radius); overflow:hidden}
+.cmp .col{padding:18px 20px}
+.cmp .col.old{background:rgba(248,113,113,.05); border-right:1px solid var(--border)}
+.cmp .col.new{background:rgba(52,211,153,.06)}
+.cmp h3{margin:0 0 12px; font-size:16px}
+.cmp ul{list-style:none; margin:0; padding:0}
+.cmp li{display:flex; gap:10px; padding:9px 0; font-size:15px;
+  border-top:1px dashed rgba(255,255,255,.07); color:var(--muted)}
+.cmp li:first-child{border-top:0}
+.cmp li span.t{color:var(--text)}
+.mark{flex:0 0 18px; text-align:center; font-weight:700}
+.x{color:var(--bad)} .v{color:var(--ok)}
+
+.ba{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+.box{border:1px solid var(--border); border-radius:var(--radius);
+  padding:18px 20px; background:var(--card)}
+.box h3{margin:0 0 10px; font-size:15px; color:var(--muted); font-weight:600}
+.box.before{border-color:rgba(248,113,113,.30)}
+.box.after{border-color:rgba(52,211,153,.38)}
+.big{font-size:clamp(24px,4.6vw,36px); font-weight:800; margin:6px 0 4px}
+.ba ul{margin:8px 0 0; padding-left:18px; color:var(--muted); font-size:15px}
+.ba li{padding:2px 0}
+
+.tabs{display:flex; gap:8px; flex-wrap:wrap; margin:22px 0 12px}
+.tab{border:1px solid var(--border); background:var(--card); color:var(--muted);
+  border-radius:999px; padding:8px 16px; font-size:14px; cursor:pointer;
+  font-family:inherit; transition:.16s}
+.tab:hover{color:var(--text); border-color:#3a465e}
+.tab.active{background:linear-gradient(135deg,var(--brand),var(--brand2));
+  color:#fff; border-color:transparent}
+.demo{border:1px solid var(--border); border-radius:var(--radius);
+  padding:18px 20px; background:var(--card2); min-height:210px}
+.demo .say{font-size:16px; margin:0 0 14px; padding:12px 14px;
+  background:rgba(91,140,255,.10); border:1px solid rgba(91,140,255,.25);
+  border-radius:12px}
+.demo .row{display:flex; gap:10px; padding:6px 0; font-size:15px;
+  color:var(--muted)}
+.demo .row i{flex:0 0 20px; color:var(--ok); font-style:normal}
+
+.steps{display:grid; gap:12px}
+.step{display:flex; gap:14px; align-items:flex-start; background:var(--card);
+  border:1px solid var(--border); border-radius:var(--radius); padding:15px 18px;
+  transition:transform .18s ease, border-color .18s ease}
+.step:hover{transform:translateY(-3px); border-color:rgba(139,92,246,.45)}
+.num{flex:0 0 32px; height:32px; border-radius:10px; display:grid;
+  place-items:center; font-weight:800; color:#fff; font-size:14px;
+  background:linear-gradient(135deg,var(--brand),var(--brand2))}
+.step b{display:block; font-size:16px}
+.step p{margin:2px 0 0; color:var(--muted); font-size:15px}
+
+.chips{display:flex; flex-wrap:wrap; gap:10px}
+.chip{border:1px solid var(--border); background:var(--card); border-radius:999px;
+  padding:10px 16px; font-size:15px}
+
+.quote{border-left:3px solid var(--brand); padding:18px 22px; font-weight:800;
+  font-size:clamp(19px,3.4vw,26px); line-height:1.5; border-radius:0 var(--radius) var(--radius) 0;
+  background:linear-gradient(90deg,rgba(91,140,255,.12),transparent)}
+
+footer{padding:56px 0 64px; margin-top:20px; text-align:center;
+  border-top:1px solid var(--border); color:var(--muted)}
+.cta{font-size:clamp(20px,3.6vw,28px); font-weight:800; color:var(--text); margin:0 0 10px}
+footer p{margin:6px 0}
+a{color:var(--brand); text-decoration:none}
+a:hover{text-decoration:underline}
+
+.reveal{opacity:0; transform:translateY(18px);
+  transition:opacity .6s ease, transform .6s ease}
+.reveal.in{opacity:1; transform:none}
+
+@media (max-width:680px){
+  .cmp{grid-template-columns:1fr}
+  .cmp .col.old{border-right:0; border-bottom:1px solid var(--border)}
+  .ba{grid-template-columns:1fr}
+  .hero{padding:64px 0 32px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important; transition:none!important}
+  .reveal{opacity:1; transform:none}
+}
+</style>
+</head>
+<body>
+<div class="glow">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="badge">AI AGENT</div>
+    <h1>AI Agent<br><span class="grad">是來解決你的問題的</span></h1>
+    <p class="sub">你唔需要學識點用 AI。<br>你只需要講清楚：你想解決咩問題。</p>
+    <div class="pills">
+      <div class="pill">唔係教你用工具 · <b>係幫你做完</b></div>
+      <div class="pill">自己計劃 · 自己做 · <b>自己檢查</b></div>
+    </div>
+  </header>
+
+  <section class="reveal">
+    <p class="kicker">分別</p>
+    <h2>傳統軟件 vs AI Agent</h2>
+    <p class="lead">同一個問題，兩種做法。工具要你遷就佢，Agent 遷就你。</p>
+
+    <div class="cmp">
+      <div class="col old">
+        <h3>傳統軟件</h3>
+        <ul>
+          <li><span class="mark x">✕</span><span class="t">要你學佢點用</span></li>
+          <li><span class="mark x">✕</span><span class="t">你要一步一步撳</span></li>
+          <li><span class="mark x">✕</span><span class="t">出錯要你自己發現</span></li>
+          <li><span class="mark x">✕</span><span class="t">一次只做一件事</span></li>
+          <li><span class="mark x">✕</span><span class="t">你要記住成個流程</span></li>
+        </ul>
+      </div>
+      <div class="col new">
+        <h3>AI Agent</h3>
+        <ul>
+          <li><span class="mark v">✓</span><span class="t">你講出問題，佢自己諗點做</span></li>
+          <li><span class="mark v">✓</span><span class="t">佢自己計劃、自己做</span></li>
+          <li><span class="mark v">✓</span><span class="t">做完自己檢查，再報告</span></li>
+          <li><span class="mark v">✓</span><span class="t">自己搵工具、串連步驟</span></li>
+          <li><span class="mark v">✓</span><span class="t">幫你記住，同重複做</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <p class="kicker">真實例子</p>
+    <h2>以前 30 分鐘一個，現在 10 分鐘做 20 個</h2>
+    <p class="lead">
+      問題：每日 20 個案件入嚟，要睇平面圖、睇租務資料夠唔夠、
+      判斷要唔要合併或分拆。
+    </p>
+
+    <div class="ba">
+      <div class="box before">
+        <h3>以前</h3>
+        <div class="big">30 分鐘 / 一個案件</div>
+        <ul>
+          <li>開 6 個檔案，逐個抄資料</li>
+          <li>自己睇平面圖、自己判斷</li>
+          <li>寫電郵追文件</li>
+          <li>仲會漏、會唔一致</li>
+        </ul>
+      </div>
+      <div class="box after">
+        <h3>用 Agent</h3>
+        <div class="big">10 分鐘 / 20 個案件</div>
+        <ul>
+          <li>講一句：「幫我分流今日嘅案件」</li>
+          <li>佢逐份睇、列出欠咩文件</li>
+          <li>寫好追文件電郵、排好優先次序</li>
+          <li>你只需要做最後判斷</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-demo="0">案件分流</button>
+      <button class="tab" data-demo="1">相片整理</button>
+      <button class="tab" data-demo="2">寫電郵追文件</button>
+    </div>
+    <div class="demo" id="demo"></div>
+  </section>
+  <section class="reveal">
+    <p class="kicker">運作方式</p>
+    <h2>佢點做？五步循環</h2>
+    <p class="lead">唔係一問一答，係一個會自己做事的循環。</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div><b>聽懂問題</b><p>唔係聽關鍵字，係聽你嘅目的。</p></div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div><b>拆解步驟</b><p>自己規劃次序：先做咩、後做咩。</p></div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div><b>動手做</b><p>開網頁、讀文件、寫嘢、跑程式、填表格。</p></div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div><b>自我檢查</b><p>比對、驗證，錯咗自己重試，唔會靜靜地出錯。</p></div>
+      </div>
+      <div class="step">
+        <div class="num">5</div>
+        <div><b>交回成果</b><p>連做過咩、仲欠咩，一齊交代清楚。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <p class="kicker">可以叫佢做嘅事</p>
+    <h2>你手上重複嘅工作，大部分都可以</h2>
+    <div class="chips">
+      <div class="chip">📄 閱讀同整理文件（PDF、相片、平面圖）</div>
+      <div class="chip">🌐 上網搵資料、填表、下載</div>
+      <div class="chip">✉️ 寫電郵、報告、Excel</div>
+      <div class="chip">🔁 重複性判斷（分流、核對、對數）</div>
+      <div class="chip">🔗 串連幾個系統做一件事</div>
+      <div class="chip">🧾 幫你留紀錄、出報表</div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <div class="quote">你嘅工作唔會消失，<br>只係唔需要再重複做。</div>
+  </section>
+
+  <footer>
+    <p class="cta">講清楚問題，其他交給 Agent。</p>
+    <p>AI Agent 唔係多一個軟件，係多一個幫你做完事嘅幫手。</p>
+    <p style="margin-top:14px">
+      <a href="https://github.com/morattiyau-ctrlww/problem" target="_blank" rel="noopener">
+        github.com/morattiyau-ctrlww/problem
+      </a>
+    </p>
+    <p style="font-size:13px">© 2026 morattiyau-ctrlww</p>
+  </footer>
+
+</div>
+
+<script>
+var DEMOS = [
+  {
+    say: "幫我分流今日嘅案件",
+    steps: [
+      "開案件資料夾，逐份讀平面圖同租務文件",
+      "抽出地址、面積、租金、租期",
+      "對照檢查清單，睇欠咩文件",
+      "寫好追文件電郵（只列欠嘅嗰幾樣）",
+      "按到期日排好優先次序",
+      "交你：12 個可以做、5 個要補文件、3 個要落場"
+    ]
+  },
+  {
+    say: "幫我整理呢批驗樓相",
+    steps: [
+      "讀全部相片，認出影嘅位置",
+      "按房間／位置分類，改名做可讀名稱",
+      "排好次序，揀出最清楚嘅一張做代表",
+      "生成相片清單，連每張相嘅描述",
+      "交你：一按就交得嘅相片集"
+    ]
+  },
+  {
+    say: "幫我寫信追佢補交租約同平面圖",
+    steps: [
+      "搵返呢個案件嘅舊往來紀錄",
+      "引用正確案件編號、地址同收件人",
+      "用你常用嘅語氣同格式寫",
+      "附上欠交文件清單",
+      "交你：檢查一次就可以發出"
+    ]
+  }
+];
+
+var demoBox = document.getElementById("demo");
+var tabs = document.getElementById("tabs");
+
+function renderDemo(i){
+  var d = DEMOS[i];
+  var html = '<p class="say">🗣️ 你講：' + d.say + '</p>';
+  for (var k = 0; k < d.steps.length; k++){
+    html += '<div class="row"><i>✓</i><span>' + d.steps[k] + '</span></div>';
+  }
+  demoBox.innerHTML = html;
+}
+
+tabs.addEventListener("click", function(e){
+  var btn = e.target.closest(".tab");
+  if (!btn) return;
+  var all = tabs.querySelectorAll(".tab");
+  for (var i = 0; i < all.length; i++) all[i].classList.remove("active");
+  btn.classList.add("active");
+  renderDemo(Number(btn.getAttribute("data-demo")));
+});
+
+renderDemo(0);
+
+var revealEls = document.querySelectorAll(".reveal");
+if ("IntersectionObserver" in window){
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting){ en.target.classList.add("in"); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(function(el){ io.observe(el); });
+} else {
+  revealEls.forEach(function(el){ el.classList.add("in"); });
+}
+</script>
+</body>
+</html>
