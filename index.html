@@ -133,13 +133,66 @@ a:hover{text-decoration:underline}
   *{animation:none!important; transition:none!important}
   .reveal{opacity:1; transform:none}
 }
+/* ---------- animated background layers ---------- */
+.grid{position:fixed; inset:-25% -25%; z-index:0; pointer-events:none; opacity:.5;
+  background-image:
+    linear-gradient(rgba(91,140,255,.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,140,255,.10) 1px, transparent 1px);
+  background-size:64px 64px; animation:pan 32s linear infinite}
+@keyframes pan{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(64px,64px,0)}
+}
+.beam{position:fixed; top:50%; left:50%; width:160vmax; height:160vmax;
+  margin:-80vmax 0 0 -80vmax; z-index:0; pointer-events:none; opacity:.13;
+  background:conic-gradient(from 0deg, transparent 0deg, rgba(125,211,252,.55) 40deg,
+    transparent 90deg, rgba(167,139,250,.5) 190deg, transparent 250deg,
+    rgba(240,171,252,.45) 310deg, transparent 360deg);
+  animation:spin 60s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)} to{transform:rotate(360deg)}}
+#net{position:fixed; inset:0; z-index:0; pointer-events:none; display:block}
+.glow .blob{will-change:transform, opacity}
+.b4{top:24%; right:12%; background:#22d3ee; opacity:.16;
+  animation:float2 34s ease-in-out infinite}
+
+.gh-profile{display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  border:1px solid var(--border); border-radius:var(--radius);
+  background:linear-gradient(180deg,var(--card),var(--bg2)); padding:16px 18px}
+.ava{width:46px; height:46px; border-radius:50%; border:1px solid var(--border)}
+.gh-meta{flex:1 1 200px; display:flex; flex-direction:column; line-height:1.35}
+.gh-meta b{font-size:17px}
+.gh-meta span{color:var(--muted); font-size:14px}
+.btn{display:inline-block; padding:10px 18px; border-radius:999px; font-weight:700;
+  color:#fff; background:linear-gradient(135deg,var(--brand),var(--brand2));
+  border:0; white-space:nowrap}
+.btn:hover{text-decoration:none; filter:brightness(1.08)}
+.gh-grid{display:grid; gap:12px; margin-top:16px;
+  grid-template-columns:repeat(auto-fill,minmax(215px,1fr))}
+.repo{display:block; border:1px solid var(--border); border-radius:14px;
+  background:var(--card); padding:14px 16px; transition:transform .18s ease,
+  border-color .18s ease, box-shadow .18s ease; min-height:96px}
+.repo:hover{transform:translateY(-3px); border-color:rgba(91,140,255,.5);
+  box-shadow:0 12px 30px rgba(0,0,0,.35); text-decoration:none}
+.repo b{display:block; font-size:16px; color:var(--text); margin-bottom:4px}
+.repo p{margin:0; color:var(--muted); font-size:13.5px; line-height:1.6;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden}
+.repo .lang{display:inline-flex; align-items:center; gap:6px; margin-top:10px;
+  color:var(--muted); font-size:12.5px}
+.repo .lang i{width:9px; height:9px; border-radius:50%; display:inline-block}
+.gh-note{color:var(--muted); font-size:14.5px; margin:14px 0 0}
+
 </style>
 </head>
 <body>
-<div class="glow">
+<div class="grid" aria-hidden="true"></div>
+<div class="beam" aria-hidden="true"></div>
+<canvas id="net" aria-hidden="true"></canvas>
+<div class="glow" aria-hidden="true">
   <div class="blob b1"></div>
   <div class="blob b2"></div>
   <div class="blob b3"></div>
+  <div class="blob b4"></div>
 </div>
 
 <div class="wrap">
@@ -151,6 +204,7 @@ a:hover{text-decoration:underline}
     <div class="pills">
       <div class="pill">唔係教你用工具 · <b>係幫你做完</b></div>
       <div class="pill">自己計劃 · 自己做 · <b>自己檢查</b></div>
+      <a class="pill" href="https://github.com/morattiyau-ctrlww" target="_blank" rel="noopener">GitHub · <b>23 個公開專案</b></a>
     </div>
   </header>
 
@@ -263,6 +317,35 @@ a:hover{text-decoration:underline}
     </div>
   </section>
 
+  <section class="reveal" id="work">
+    <p class="kicker">連接所有東西</p>
+    <h2>我嘅作品，全部都連得埋</h2>
+    <p class="lead">
+      Agent 唔止做一件事：佢可以連接你嘅網頁、程式、API、檔案同服務。
+      以下係我做過嘅一部分，全部都公開 — 每一件都可以畀 agent 串連起嚟做嘢。
+    </p>
+
+    <div class="gh-profile">
+      <img class="ava" alt="@morattiyau-ctrlww"
+        src="https://avatars.githubusercontent.com/u/253170347?v=4" loading="lazy">
+      <div class="gh-meta">
+        <b>@morattiyau-ctrlww</b>
+        <span id="repo-count">23 個公開專案</span>
+      </div>
+      <a class="btn" href="https://github.com/morattiyau-ctrlww"
+        target="_blank" rel="noopener">睇我嘅 GitHub</a>
+    </div>
+
+    <div class="gh-grid" id="gh-grid"></div>
+
+    <p class="gh-note">
+      想連接？由
+      <a href="https://github.com/morattiyau-ctrlww/problem"
+        target="_blank" rel="noopener">呢一頁</a>
+      開始，再揀你想 agent 幫你連嘅工具。
+    </p>
+  </section>
+
   <section class="reveal">
     <div class="quote">你嘅工作唔會消失，<br>只係唔需要再重複做。</div>
   </section>
@@ -349,6 +432,157 @@ if ("IntersectionObserver" in window){
 } else {
   revealEls.forEach(function(el){ el.classList.add("in"); });
 }
+
+/* ---------- animated particle network background ---------- */
+(function(){
+  var cv = document.getElementById("net");
+  if (!cv || !cv.getContext) return;
+  var ctx = cv.getContext("2d");
+  var reduce = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var W = 0, H = 0, pts = [], raf = 0;
+  var mouse = { x: -9999, y: -9999 };
+  var LINK = 132;
+
+  function resize(){
+    W = window.innerWidth; H = window.innerHeight;
+    cv.style.width = W + "px"; cv.style.height = H + "px";
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var n = Math.round(Math.min(110, Math.max(34, (W * H) / 22000)));
+    pts = [];
+    for (var i = 0; i < n; i++){
+      pts.push({
+        x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - .5) * .38, vy: (Math.random() - .5) * .38,
+        r: Math.random() * 1.6 + .7
+      });
+    }
+  }
+
+  function step(){
+    ctx.clearRect(0, 0, W, H);
+    var i, j, p;
+    for (i = 0; i < pts.length; i++){
+      p = pts[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < -24) p.x = W + 24;
+      if (p.x > W + 24) p.x = -24;
+      if (p.y < -24) p.y = H + 24;
+      if (p.y > H + 24) p.y = -24;
+      var dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
+      if (d2 < 22000 && d2 > 1){
+        var f = (22000 - d2) / 22000 * .7, d = Math.sqrt(d2);
+        p.x += dx / d * f; p.y += dy / d * f;
+      }
+    }
+    for (i = 0; i < pts.length; i++){
+      for (j = i + 1; j < pts.length; j++){
+        var a = pts[i], b = pts[j];
+        dx = a.x - b.x; dy = a.y - b.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < LINK){
+          ctx.strokeStyle = "rgba(120,155,255," +
+            (0.22 * (1 - dist / LINK)).toFixed(3) + ")";
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+      }
+    }
+    for (i = 0; i < pts.length; i++){
+      p = pts[i];
+      ctx.fillStyle = "rgba(185,205,255,.8)";
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    }
+    if (!reduce) raf = requestAnimationFrame(step);
+  }
+
+  window.addEventListener("resize", resize, { passive: true });
+  window.addEventListener("mousemove", function(e){
+    mouse.x = e.clientX; mouse.y = e.clientY;
+  }, { passive: true });
+  window.addEventListener("touchmove", function(e){
+    if (e.touches && e.touches[0]){
+      mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY;
+    }
+  }, { passive: true });
+  document.addEventListener("visibilitychange", function(){
+    cancelAnimationFrame(raf);
+    if (!document.hidden && !reduce) raf = requestAnimationFrame(step);
+  });
+  resize(); step();
+})();
+
+/* ---------- GitHub repos (live, with offline fallback) ---------- */
+var FALLBACK_REPOS = [
+  ["problem","AI Agent 是來解決你的問題的","HTML"],
+  ["cline-","Cline 相關實驗","HTML"],
+  ["friends","friends","TypeScript"],
+  ["recipe","recipe","TypeScript"],
+  ["CRUD","CRUD","TypeScript"],
+  ["checklist","checklist","HTML"],
+  ["SVG","svg html5 canvas","HTML"],
+  ["VALUATIONDEMO","DEMO","Python"],
+  ["quiz","quiz","JavaScript"],
+  ["kiro","turtorial","HTML"],
+  ["popular","popular","JavaScript"],
+  ["todolist","todolist","JavaScript"],
+  ["hellocoffee","a coffee web site","HTML"],
+  ["test1","testing","HTML"],
+  ["weatherplan","weekend","JavaScript"],
+  ["weather","dress","JavaScript"],
+  ["soccer","penalty game","CSS"],
+  ["daily","hello my friends","JavaScript"],
+  ["coin","gold coin","CSS"],
+  ["list","grocery list","JavaScript"],
+  ["timer","cool timer","JavaScript"],
+  ["blog","blog my frds","JavaScript"],
+  ["playlist","music for you","JavaScript"]
+];
+
+var GH_USER = "morattiyau-ctrlww";
+var grid = document.getElementById("gh-grid");
+
+function langColor(l){
+  var c = { HTML:"#e34c26", JavaScript:"#f1e05a", TypeScript:"#3178c6",
+            CSS:"#563d7c", Python:"#3572A5" };
+  return c[l] || "#8b93a7";
+}
+
+function renderRepos(list){
+  var html = "";
+  for (var i = 0; i < list.length; i++){
+    var r = list[i];
+    var url = r.html_url || ("https://github.com/" + GH_USER + "/" + r[0]);
+    var name = r.name || r[0];
+    var desc = r.description || "";
+    var lang = r.language || "";
+    html += '<a class="repo" href="' + url + '" target="_blank" rel="noopener">';
+    html += "<b>" + name + "</b>";
+    if (desc) html += "<p>" + desc + "</p>";
+    if (lang) html += '<span class="lang"><i style="background:' +
+      langColor(lang) + '"></i>' + lang + "</span>";
+    html += "</a>";
+  }
+  grid.innerHTML = html;
+}
+
+if (grid){
+  renderRepos(FALLBACK_REPOS);
+  fetch("https://api.github.com/users/" + GH_USER + "/repos?per_page=100&sort=updated")
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){
+      if (!d || !d.length) return;
+      var own = d.filter(function(x){ return !x.fork; });
+      if (!own.length) return;
+      renderRepos(own);
+      var c = document.getElementById("repo-count");
+      if (c) c.textContent = own.length + " 個公開專案 · 全部自己做";
+    })
+    .catch(function(){});
+}
+
 </script>
 </body>
 </html>
