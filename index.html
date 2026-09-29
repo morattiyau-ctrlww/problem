@@ -182,6 +182,19 @@ a:hover{text-decoration:underline}
 .repo .lang i{width:9px; height:9px; border-radius:50%; display:inline-block}
 .gh-note{color:var(--muted); font-size:14.5px; margin:14px 0 0}
 
+.repo{position:relative; padding-top:16px}
+.repo.is-live{border-color:rgba(52,211,153,.35)}
+.live-badge{position:absolute; top:9px; right:11px; font-size:10px;
+  letter-spacing:.14em; font-weight:800; color:#052e21; background:#34d399;
+  padding:2px 7px; border-radius:999px}
+.repo-hit{display:block; color:inherit}
+.repo-hit:hover{text-decoration:none}
+.repo-foot{display:flex; align-items:center; gap:12px; margin-top:12px;
+  flex-wrap:wrap}
+.repo-foot .src{font-size:12.5px; color:var(--muted)}
+.repo-foot .go{margin-left:auto; font-size:12.5px; font-weight:700; color:#a5b8ff}
+.repo:hover .go{text-decoration:underline}
+
 </style>
 </head>
 <body>
@@ -322,7 +335,7 @@ a:hover{text-decoration:underline}
     <h2>我嘅作品，全部都連得埋</h2>
     <p class="lead">
       Agent 唔止做一件事：佢可以連接你嘅網頁、程式、API、檔案同服務。
-      以下係我做過嘅一部分，全部都公開 — 每一件都可以畀 agent 串連起嚟做嘢。
+      以下係我做過嘅一部分，<b>每一件都已經上線</b>：撳入去就係用得到嘅成品，想睇碼就撳「原始碼」。
     </p>
 
     <div class="gh-profile">
@@ -342,7 +355,7 @@ a:hover{text-decoration:underline}
       想連接？由
       <a href="https://github.com/morattiyau-ctrlww/problem"
         target="_blank" rel="noopener">呢一頁</a>
-      開始，再揀你想 agent 幫你連嘅工具。
+      22 個成品網站，全部公開。想連接？由你想解決嘅問題開始。
     </p>
   </section>
 
@@ -514,34 +527,40 @@ if ("IntersectionObserver" in window){
   resize(); step();
 })();
 
-/* ---------- GitHub repos (live, with offline fallback) ---------- */
-var FALLBACK_REPOS = [
-  ["problem","AI Agent 是來解決你的問題的","HTML"],
-  ["cline-","Cline 相關實驗","HTML"],
-  ["friends","friends","TypeScript"],
-  ["recipe","recipe","TypeScript"],
-  ["CRUD","CRUD","TypeScript"],
-  ["checklist","checklist","HTML"],
-  ["SVG","svg html5 canvas","HTML"],
-  ["VALUATIONDEMO","DEMO","Python"],
-  ["quiz","quiz","JavaScript"],
-  ["kiro","turtorial","HTML"],
-  ["popular","popular","JavaScript"],
-  ["todolist","todolist","JavaScript"],
-  ["hellocoffee","a coffee web site","HTML"],
-  ["test1","testing","HTML"],
-  ["weatherplan","weekend","JavaScript"],
-  ["weather","dress","JavaScript"],
-  ["soccer","penalty game","CSS"],
-  ["daily","hello my friends","JavaScript"],
-  ["coin","gold coin","CSS"],
-  ["list","grocery list","JavaScript"],
-  ["timer","cool timer","JavaScript"],
-  ["blog","blog my frds","JavaScript"],
-  ["playlist","music for you","JavaScript"]
+/* ---------- GitHub repos: 直連成品網站 ---------- */
+var GH_USER = "morattiyau-ctrlww";
+var SITE = "https://morattiyau-ctrlww.github.io/";
+
+/* name, 描述, 語言, 有無成品網站（已實測 HTTP 200） */
+var REPOS = [
+  ["problem","就係你睇緊呢一頁（原始碼）","HTML",false],
+  ["cline-","Cline 相關實驗","HTML",true],
+  ["friends","friends","TypeScript",true],
+  ["recipe","recipe","TypeScript",true],
+  ["CRUD","CRUD","TypeScript",true],
+  ["checklist","checklist","HTML",true],
+  ["SVG","svg html5 canvas","HTML",true],
+  ["VALUATIONDEMO","DEMO","Python",true],
+  ["quiz","quiz","JavaScript",true],
+  ["kiro","turtorial","HTML",true],
+  ["popular","popular","JavaScript",true],
+  ["todolist","todolist","JavaScript",true],
+  ["hellocoffee","a coffee web site","HTML",true],
+  ["test1","testing","HTML",true],
+  ["weatherplan","weekend","JavaScript",true],
+  ["weather","dress","JavaScript",true],
+  ["soccer","penalty game","CSS",true],
+  ["daily","hello my friends","JavaScript",true],
+  ["coin","gold coin","CSS",true],
+  ["list","grocery list","JavaScript",true],
+  ["timer","cool timer","JavaScript",true],
+  ["blog","blog my frds","JavaScript",true],
+  ["playlist","music for you","JavaScript",true]
 ];
 
-var GH_USER = "morattiyau-ctrlww";
+var LIVE_FLAG = {};
+REPOS.forEach(function(r){ LIVE_FLAG[r[0]] = r[3]; });
+
 var grid = document.getElementById("gh-grid");
 
 function langColor(l){
@@ -550,35 +569,59 @@ function langColor(l){
   return c[l] || "#8b93a7";
 }
 
-function renderRepos(list){
-  var html = "";
-  for (var i = 0; i < list.length; i++){
-    var r = list[i];
-    var url = r.html_url || ("https://github.com/" + GH_USER + "/" + r[0]);
-    var name = r.name || r[0];
-    var desc = r.description || "";
-    var lang = r.language || "";
-    html += '<a class="repo" href="' + url + '" target="_blank" rel="noopener">';
-    html += "<b>" + name + "</b>";
-    if (desc) html += "<p>" + desc + "</p>";
-    if (lang) html += '<span class="lang"><i style="background:' +
-      langColor(lang) + '"></i>' + lang + "</span>";
-    html += "</a>";
+function card(o){
+  var live = !!o.live;
+  var main = live ? (o.homepage || (SITE + o.name + "/")) : o.repo;
+  var html = '<div class="repo' + (live ? " is-live" : "") + '">';
+  if (live) html += '<span class="live-badge">LIVE</span>';
+  html += '<a class="repo-hit" href="' + main + '" target="_blank" rel="noopener">';
+  html += "<b>" + o.name + "</b>";
+  if (o.desc) html += "<p>" + o.desc + "</p>";
+  html += "</a>";
+  html += '<div class="repo-foot">';
+  if (o.lang){
+    html += '<span class="lang"><i style="background:' + langColor(o.lang) +
+            '"></i>' + o.lang + "</span>";
   }
+  html += '<a class="src" href="' + o.repo + '" target="_blank" rel="noopener">原始碼</a>';
+  html += '<a class="go" href="' + main + '" target="_blank" rel="noopener">' +
+          (live ? "睇成品 ↗" : "睇碼 ↗") + "</a>";
+  html += "</div></div>";
+  return html;
+}
+
+function renderFromLocal(){
+  var html = "";
+  REPOS.forEach(function(r){
+    html += card({ name:r[0], desc:r[1], lang:r[2], live:r[3],
+      repo: "https://github.com/" + GH_USER + "/" + r[0] });
+  });
+  grid.innerHTML = html;
+}
+
+function renderFromApi(list){
+  var html = "";
+  list.forEach(function(r){
+    if (r.fork) return;
+    var known = LIVE_FLAG[r.name];
+    var live = (typeof known === "boolean") ? known : !!r.homepage;
+    html += card({ name:r.name, desc:r.description || "",
+      lang:r.language || "", live:live, homepage:r.homepage, repo:r.html_url });
+  });
   grid.innerHTML = html;
 }
 
 if (grid){
-  renderRepos(FALLBACK_REPOS);
+  renderFromLocal();
   fetch("https://api.github.com/users/" + GH_USER + "/repos?per_page=100&sort=updated")
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(d){
       if (!d || !d.length) return;
       var own = d.filter(function(x){ return !x.fork; });
       if (!own.length) return;
-      renderRepos(own);
+      renderFromApi(own);
       var c = document.getElementById("repo-count");
-      if (c) c.textContent = own.length + " 個公開專案 · 全部自己做";
+      if (c) c.textContent = own.length + " 個公開專案 · 22 個有成品網站";
     })
     .catch(function(){});
 }
